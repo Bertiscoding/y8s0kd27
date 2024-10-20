@@ -1,10 +1,21 @@
+import { useState } from 'react'
 import PropTypes from 'prop-types'
 import CommentItem from './CommentItem';
+import CommentForm from './CommentForm';
 import ActionButton from './ActionButton';
 
-const CommentReply = ({ reply }) => {
-  const {id, text, authorFirstName, authorLastName, edited, createdOn} = reply
+const CommentReply = ({ reply, onSaveReply }) => {
+  const { id, text, authorFirstName, authorLastName, edited, createdOn, editMode } = reply
   
+  const [addReply, setAddReply] = useState('')
+
+  const handleSaveReply = () => {
+    if (addReply.trim()) {
+      onSaveReply(addReply)
+      setAddReply('')
+    }
+  }
+
   return (
     <div id={id} className='flex justify-between mt-5'>
       <div className='text-brand-primary-dark ml-base'>
@@ -13,14 +24,24 @@ const CommentReply = ({ reply }) => {
         </svg>
       </div>
       <div>
-        <CommentItem
-          text={text}
-          authorFirstName={authorFirstName}
-          authorLastName={authorLastName}
-          edited={edited}
-          createdOn={createdOn}
-          itemWidth="w-[300px]"
-        />
+        { editMode ? (
+          <CommentForm
+            id={id}
+            text={addReply}
+            placeholder='Write a reply...'
+            onChange={(e) => setAddReply(e.target.value)}
+          />
+        ) : (
+          <CommentItem
+            text={text}
+            authorFirstName={authorFirstName}
+            authorLastName={authorLastName}
+            edited={edited}
+            createdOn={createdOn}
+            itemWidth="w-[300px]"
+            editText={editMode}
+          />
+        )}
         <div className='w-full flex justify-end'>
           <div className='w-[300px] flex justify-between mt-2 px-4'>
             <div className='flex'>
@@ -37,18 +58,33 @@ const CommentReply = ({ reply }) => {
                 <span>Delete</span>
               </ActionButton>
 
-              <ActionButton
-                btnClassNames="text-brand-primary w-16"
-                disabled={false}
-                onClick={() => {}}
-              >
-                <span className='mr-1'>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                  </svg>
-                </span>
-                <span>Edit</span>
-              </ActionButton>
+              { editMode ? (
+                  <ActionButton
+                    btnClassNames="text-brand-primary w-22"
+                    disabled={false}
+                    onClick={handleSaveReply}
+                  >
+                    <span className='mr-1'>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                      </svg>
+                    </span>
+                    <span>Save changes</span>
+                  </ActionButton>
+                ) : (
+                  <ActionButton
+                    btnClassNames="text-brand-primary w-16"
+                    disabled={false}
+                    onClick={()=>{}}
+                  >
+                  <span className='mr-1'>
+                  < svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                    </svg>
+                  </span>
+                  <span>Edit</span>
+                </ActionButton>
+                )}
             </div>
           </div>
         </div>
@@ -58,11 +94,7 @@ const CommentReply = ({ reply }) => {
   )
 }
 CommentReply.propTypes = {
-  id: PropTypes.number,
-  text: PropTypes.string,
-  authorFirstName: PropTypes.string,
-  authorLastName: PropTypes.string,
-  edited: PropTypes.bool,
-  createdOn: PropTypes.string, // PropTypes.instanceOf(Date)
+  reply: PropTypes.object,
+  onSaveReply: PropTypes.func
 }
 export default CommentReply

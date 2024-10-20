@@ -22,7 +22,7 @@ module.exports = {
         {
           id: 4,
           text: "The AUTARC software supports room-by-room heating load with the simplified procedure in accordance with DIN EN 12831, testing of heating surfaces (radiators and floor heating) for the suitability of efficient operation of a heat pump.",
-          authorFirstName: "Max",
+          authorFirstName: "Erika",
           authorLastName: "Mustermann",
           authorId: 1,
           edited: false,

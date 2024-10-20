@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types'
 
-const ActionButton = props => {
-  const { btnClassNames, disabled, onClick, children } = props
+const ActionButton = ({ btnClassNames, disabled, onClick, children }) => {
+  
   return (
     <button
       disabled={disabled}
       onClick={onClick}
-      className={`${btnClassNames} text-xxs-10 flex items-center disabled:brand-grey-light`}
+      className={`${btnClassNames} text-xxs-10 flex items-center disabled:text-brand-grey-light`}
     >
       {children}
   </button>

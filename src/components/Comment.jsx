@@ -5,21 +5,37 @@ import CommentReply from './CommentReply'
 import ActionButton from './ActionButton'
 
 
-const Comment = ({ comment }) => {
+const Comment = ({ comment, onUpdateComment, onDeleteComment, onAddReply }) => {
   const {id, text, authorFirstName, authorLastName, edited, createdOn, replies} = comment
 
   const [repliesOpen, setRepliesOpen] = useState(false)
+  const [editMode, setEditMode] = useState(false)
+  const [replyMode, setReplyMode] = useState(false)
+  const [updatedText, setUpdatedText] = useState(text)
 
   const toggleReplies = () => (setRepliesOpen(!repliesOpen))
+
+  const handleSaveEdit = () => {
+    onUpdateComment(id, updatedText)
+    setEditMode(false);
+  }
+
+  const handleAddReply = (replyText) => {
+    onAddReply(id, replyText)
+    setReplyMode(false);
+  }
 
   return (
     <div id={id} className='mb-5'>
       <CommentItem
-        text={text}
+        id={id}
+        text={editMode ? updatedText : text}
         authorFirstName={authorFirstName}
         authorLastName={authorLastName}
         edited={edited}
         createdOn={createdOn}
+        editMode={editMode}
+        onChangeText={setUpdatedText}
         itemWidth="w-[348px]"
       />
       <div className='w-full flex justify-end'>
@@ -28,8 +44,8 @@ const Comment = ({ comment }) => {
 
           <ActionButton
             btnClassNames="text-brand-primary w-16"
-            disabled={false}
-            onClick={() => {}}
+            disabled={editMode}
+            onClick={() => setReplyMode(!replyMode)}
           >
             <span className='mr-1'>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3" transform="scale(1, -1)">
@@ -40,9 +56,9 @@ const Comment = ({ comment }) => {
           </ActionButton>
 
           <ActionButton
+            disabled={editMode}
             btnClassNames="text-brand-primary w-16"
-            disabled={false}
-            onClick={() => {}}
+            onClick={() => onDeleteComment(id)}
           >
             <span className='mr-1'>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
@@ -51,12 +67,25 @@ const Comment = ({ comment }) => {
             </span>
             <span>Delete</span>
           </ActionButton>
-
-          <ActionButton
-            btnClassNames="text-brand-primary w-16"
-            disabled={false}
-            onClick={() => {}}
-          >
+          { editMode ? (
+            <ActionButton
+              btnClassNames="text-brand-primary w-22"
+              disabled={false}
+              onClick={handleSaveEdit}
+            >
+              <span className='mr-1'>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+              </span>
+              <span>Save changes</span>
+            </ActionButton>
+          ) : (
+            <ActionButton
+              btnClassNames="text-brand-primary w-16"
+              disabled={false}
+              onClick={() => setEditMode(true)}
+            >
             <span className='mr-1'>
             < svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
@@ -64,9 +93,10 @@ const Comment = ({ comment }) => {
             </span>
             <span>Edit</span>
           </ActionButton>
+          )}
 
           </div>
-            { replies.length !== 0 && (
+            { replies.length > 0 && (
               <ActionButton
                 btnClassNames="text-brand-primary-dark"
                 disabled={false}
@@ -91,9 +121,20 @@ const Comment = ({ comment }) => {
           </div>
         </div>
 
-        {(replies.length !== 0 && repliesOpen) && (
+        {replyMode && (
+          <CommentReply onSaveReply={handleAddReply} editMode={editMode} />
+        )}
+
+        {(replies.length > 0 && repliesOpen) && (
           replies.map(reply => (
-            <CommentReply key={reply.id} reply={reply} />
+            <CommentReply
+              key={reply.id}
+              reply={reply}
+              editMode={editMode}
+              onUpdateComment={onUpdateComment}
+              onDeleteComment={onDeleteComment}
+              onAddReply={onAddReply}
+            />
           ))
         )}
     </div>
@@ -101,13 +142,10 @@ const Comment = ({ comment }) => {
 }
 
 Comment.propTypes = {
-  id: PropTypes.number,
-  text: PropTypes.string,
-  authorFirstName: PropTypes.string,
-  authorLastName: PropTypes.string,
-  edited: PropTypes.bool,
-  createdOn: PropTypes.instanceOf(Date),
-  replies: PropTypes.array,
+  comment: PropTypes.object,
+  onUpdateComment: PropTypes.func,
+  onDeleteComment: PropTypes.func,
+  onAddReply: PropTypes.func
 }
 
 export default Comment
