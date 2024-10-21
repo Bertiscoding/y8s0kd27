@@ -1,63 +1,46 @@
+import { useState } from 'react'
+import { useUser } from '../context/UserContext'
+import PropTypes from 'prop-types'
 import CommentForm from './CommentForm'
 import ActionButton from './ActionButton'
-import { useState } from 'react'
 
-const CommentCreateContainer = ({userName}) => {
-  const [formOpen, setFormOpen] = useState(true)
-  const [newComment, setNewComment] = useState({
-    id: '',
-    text: '',
-    authorFirstName: userName.authorFirstName,
-    authorLastName: userName.authorLastName,
-    authorId: userName.id,
-    edited: false,
-    createdOn: '',
-    replies: [],
-  })
+const CommentCreateContainer = ({ onAddComment }) => {
+  const { user } = useUser()
+
+  const [formOpen, setFormOpen] = useState(false)
+  const [newCommentText, setNewCommentText] = useState('')
 
   const toggleForm = () => (setFormOpen(!formOpen))
 
   const handleFormChange = (e) => {
-    setNewComment({
-      ...newComment,
-      text: e.target.value,
-    })
+    setNewCommentText(e.target.value)
   }
 
-  const handleSaveNewComment = () => {
-    setFormOpen(!formOpen)
-  
-    const newCommentWithId = {
-      ...newComment,
-      id: Date.now(),
-      createdOn: new Date(),
-    }
-  
-    let localStorageComments = JSON.parse(localStorage.getItem('comments'))
-  
-    if (!Array.isArray(localStorageComments)) {
-      localStorageComments = []
-    }
-  
-    localStorageComments.push(newCommentWithId)
-    localStorage.setItem('comments', JSON.stringify(localStorageComments))
-  
-    setNewComment({
-      id: '',
-      text: '',
-      authorFirstName: userName.authorFirstName,
-      authorLastName: userName.authorLastName,
-      authorId: userName.id,
+  const handleSaveNewComment = (e) => {
+    e.preventDefault()
+    const trimmedCommentText = newCommentText.trim()
+    if (!trimmedCommentText) return
+
+    const newComment = {
+      id: Date.now().toString(),
+      text: trimmedCommentText,
+      authorFirstName: user?.authorFirstName,
+      authorLastName: user?.authorLastName,
+      authorId: user?.authorId,
       edited: false,
-      createdOn: '',
+      createdOn: new Date(),
       replies: [],
-    })
+    }
+
+    onAddComment(newComment)
+    setNewCommentText('')
+    setFormOpen(false)
   }
   
 
   return (
     <>
-      <div className='h-[30px] flex items-end bg-gradient-to-t from-brand-primary-dark-II via-brand-primary-dark-II to-transparent pointer-events-none'>
+      <div className='h-[30px] flex items-end bg-gradient-to-t from-brand-primary-dark-II via-brand-primary-dark-II to-transparent rounded-br-md rounded-bl-md'>
         <ActionButton
           btnClassNames="text-brand-primary-dark w-22 h-4 pl-base"
           disabled={false}
@@ -73,30 +56,30 @@ const CommentCreateContainer = ({userName}) => {
           <span>{formOpen ? 'Close' : 'Open'} form</span>
         </ActionButton>
       </div>
-      {
-        formOpen && (
+      { formOpen && (
           <div className='flex flex-col items-end p-base rounded-br-md rounded-bl-md justify-end bg-brand-primary-dark-II'>
             <div className="pb-base w-full">
               <CommentForm
                 id={Date.now().toString()}
-                text={newComment.text}
+                text={newCommentText}
                 placeholder='What is on your mind...'
                 onChange={handleFormChange}
               />
             </div>
             <button
-              disabled={!newComment.text}
+              disabled={!newCommentText}
               onClick={handleSaveNewComment}
               className='bg-brand-primary disabled:bg-brand-grey-light rounded-md text-white font-semibold fit-content px-5 py-3'>
               Post comment
             </button>
           </div>
-        )
-      }
+        ) }
     </>
   )
 }
 
-CommentCreateContainer.propTypes = {}
+CommentCreateContainer.propTypes = {
+  onAddComment: PropTypes.func,
+}
 
 export default CommentCreateContainer

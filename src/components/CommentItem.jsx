@@ -3,12 +3,12 @@ import {format} from 'date-fns'
 import CommentForm from './CommentForm'
 
 
-const CommentItem = ({id, text, authorFirstName, authorLastName, edited, createdOn, itemWidth, editMode, onChangeText}) => {
-
+const CommentItem = ({id, text, authorFirstName, authorLastName, edited, createdOn, itemWidth, editMode, onChangeText, isAuthor}) => {
+  const isAuthorAvatar = isAuthor ? 'bg-brand-primary-dark border-brand-primary-dark text-brand-off-white' : 'bg-brand-primary-light border-brand-primary-light-II text-brand-primary-dark'
   return (
     <div className='flex'>
-      <div className='bg-brand-primary-light rounded-full border border-brand-primary-light-II w-9 h-9 flex justify-center items-center mr-2'>
-        <span className='text-brand-primary-dark font-bold text-sm'>
+      <div className={`${isAuthorAvatar} rounded-full border w-9 h-9 flex justify-center items-center mr-2`}>
+        <span className='font-bold text-sm'>
         {authorFirstName[0].toUpperCase()}{authorLastName[0].toUpperCase()}
         </span>
       </div>
@@ -47,7 +47,8 @@ CommentItem.propTypes = {
   edited: PropTypes.bool,
   createdOn: PropTypes.string,
   editMode: PropTypes.bool,
-  onChangeText: PropTypes.func
+  onChangeText: PropTypes.func,
+  isAuthor: PropTypes.bool,
 }
 
 export default CommentItem

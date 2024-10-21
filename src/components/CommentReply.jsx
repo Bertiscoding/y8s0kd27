@@ -4,14 +4,14 @@ import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
 import ActionButton from './ActionButton';
 
-const CommentReply = ({ reply, onSaveReply }) => {
-  const { id, text, authorFirstName, authorLastName, edited, createdOn, editMode } = reply
+const CommentReply = ({ reply, editMode, onUpdateComment, onDeleteComment, onAddReply, isAuthor }) => {
+  const { id, text, authorFirstName, authorLastName, edited, createdOn } = reply
   
   const [addReply, setAddReply] = useState('')
 
   const handleSaveReply = () => {
     if (addReply.trim()) {
-      onSaveReply(addReply)
+      onAddReply(addReply)
       setAddReply('')
     }
   }
@@ -47,8 +47,8 @@ const CommentReply = ({ reply, onSaveReply }) => {
             <div className='flex'>
               <ActionButton
                 btnClassNames="text-brand-primary w-16"
-                disabled={false}
-                onClick={() => {}}
+                disabled={!isAuthor || editMode}
+                onClick={onDeleteComment}
               >
                 <span className='mr-1'>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
@@ -74,8 +74,8 @@ const CommentReply = ({ reply, onSaveReply }) => {
                 ) : (
                   <ActionButton
                     btnClassNames="text-brand-primary w-16"
-                    disabled={false}
-                    onClick={()=>{}}
+                    disabled={!isAuthor}
+                    onClick={onUpdateComment}
                   >
                   <span className='mr-1'>
                   < svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
@@ -95,6 +95,10 @@ const CommentReply = ({ reply, onSaveReply }) => {
 }
 CommentReply.propTypes = {
   reply: PropTypes.object,
-  onSaveReply: PropTypes.func
+  editMode: PropTypes.bool,
+  onUpdateComment:  PropTypes.func,
+  onDeleteComment: PropTypes.func,
+  onAddReply: PropTypes.func,
+  isAuthor: PropTypes.bool,
 }
 export default CommentReply

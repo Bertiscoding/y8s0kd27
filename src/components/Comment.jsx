@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useUser } from '../context/UserContext'
 import PropTypes from 'prop-types'
 import CommentItem from './CommentItem'
 import CommentReply from './CommentReply'
@@ -6,12 +7,21 @@ import ActionButton from './ActionButton'
 
 
 const Comment = ({ comment, onUpdateComment, onDeleteComment, onAddReply }) => {
-  const {id, text, authorFirstName, authorLastName, edited, createdOn, replies} = comment
+  const {id, text, authorFirstName, authorLastName, authorId, edited, createdOn, replies} = comment
+  
+  const { user } = useUser()
 
   const [repliesOpen, setRepliesOpen] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [replyMode, setReplyMode] = useState(false)
   const [updatedText, setUpdatedText] = useState(text)
+  const [isAuthor, setIsAuthor] = useState(false)
+
+  useEffect(() => {
+    if (user && user.authorId === authorId) {
+      setIsAuthor(true)
+    }
+  }, [user, authorId])
 
   const toggleReplies = () => (setRepliesOpen(!repliesOpen))
 
@@ -29,14 +39,15 @@ const Comment = ({ comment, onUpdateComment, onDeleteComment, onAddReply }) => {
     <div id={id} className='mb-5'>
       <CommentItem
         id={id}
-        text={editMode ? updatedText : text}
-        authorFirstName={authorFirstName}
-        authorLastName={authorLastName}
         edited={edited}
-        createdOn={createdOn}
+        isAuthor={isAuthor}
         editMode={editMode}
-        onChangeText={setUpdatedText}
+        createdOn={createdOn}
         itemWidth="w-[348px]"
+        onChangeText={setUpdatedText}
+        authorLastName={authorLastName}
+        authorFirstName={authorFirstName}
+        text={editMode ? updatedText : text}
       />
       <div className='w-full flex justify-end'>
         <div className='w-[348px] flex justify-between mt-2 px-4'>
@@ -56,7 +67,7 @@ const Comment = ({ comment, onUpdateComment, onDeleteComment, onAddReply }) => {
           </ActionButton>
 
           <ActionButton
-            disabled={editMode}
+            disabled={!isAuthor || editMode}
             btnClassNames="text-brand-primary w-16"
             onClick={() => onDeleteComment(id)}
           >
@@ -83,7 +94,7 @@ const Comment = ({ comment, onUpdateComment, onDeleteComment, onAddReply }) => {
           ) : (
             <ActionButton
               btnClassNames="text-brand-primary w-16"
-              disabled={false}
+              disabled={!isAuthor}
               onClick={() => setEditMode(true)}
             >
             <span className='mr-1'>
@@ -122,7 +133,10 @@ const Comment = ({ comment, onUpdateComment, onDeleteComment, onAddReply }) => {
         </div>
 
         {replyMode && (
-          <CommentReply onSaveReply={handleAddReply} editMode={editMode} />
+          <CommentReply
+            editMode={editMode} 
+            onAddReply={handleAddReply}
+          />
         )}
 
         {(replies.length > 0 && repliesOpen) && (
@@ -133,7 +147,8 @@ const Comment = ({ comment, onUpdateComment, onDeleteComment, onAddReply }) => {
               editMode={editMode}
               onUpdateComment={onUpdateComment}
               onDeleteComment={onDeleteComment}
-              onAddReply={onAddReply}
+              onAddReply={handleAddReply}
+              isAuthor={isAuthor}
             />
           ))
         )}

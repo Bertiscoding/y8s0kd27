@@ -1,38 +1,44 @@
-import { useEffect, useState } from 'react'
+import { useUser } from '../context/UserContext'
+import { useComments } from '../context/CommentsContext'
 import Comment from './Comment'
-import { otherComments } from '../db'
+import CommentCreateContainer from './CommentCreateContainer'
 
 const CommentContainer = () => {
-  const [comments, setComments] = useState([])
-
-  useEffect(() => {
-    const localStorageComments = JSON.parse(localStorage.getItem('comments')) || []
-    const allComments = [...otherComments, ...localStorageComments]
-    const sortedComments = allComments.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn))
-    setComments(sortedComments)
-  // eslint-disable-next-line
-  }, [])
+  const { user } = useUser()
+  const { comments, setComments } = useComments()
+  console.log('Loaded comments in CommentContainer:', comments)
+  const handleAddComment = (newCommentText) => {
+    const newComment = {
+      id: Date.now().toString(),
+      text: newCommentText,
+      authorFirstName: user.authorFirstName,
+      authorLastName: user.authorLastName,
+      authorId: user.authorId,
+      createdOn: new Date(),
+      replies: [],
+    }
+    setComments((prevComments) => [...prevComments, newComment])
+  }
 
   const handleUpdateComment = (id, updatedText) => {
     const updatedComments = comments.map((comment) =>
       comment.id === id ? { ...comment, text: updatedText, edited: true } : comment
     )
     setComments(updatedComments)
-    localStorage.setItem('comments', JSON.stringify(updatedComments))
   }
 
   const handleDeleteComment = (id) => {
-    const updatedComments = comments.filter((comment) => comment.id !== id)
+    const updatedComments = comments.filter((comment) => comment.id !== id);
     setComments(updatedComments)
-    localStorage.setItem('comments', JSON.stringify(updatedComments))
   }
 
   const handleAddReply = (commentId, replyText) => {
     const newReply = {
       id: Date.now().toString(),
       text: replyText,
-      authorFirstName: 'FirstName', // Replace with actual user data
-      authorLastName: 'LastName',
+      authorFirstName: user.authorFirstName,
+      authorLastName: user.authorLastName,
+      authorId: user.authorId,
       createdOn: new Date(),
       replies: [],
     }
@@ -40,21 +46,26 @@ const CommentContainer = () => {
       comment.id === commentId ? { ...comment, replies: [...comment.replies, newReply] } : comment
     )
     setComments(updatedComments)
-    localStorage.setItem('comments', JSON.stringify(updatedComments))
   }
-
 
   return (
     <>
-      {comments.map((comment) => (
-        <Comment
-          key={comment.id}
-          comment={comment}
-          onUpdateComment={handleUpdateComment}
-          onDeleteComment={handleDeleteComment}
-          onAddReply={handleAddReply}
-        />
-      ))}
+      {comments?.length > 0 ? (
+        comments.map((comment) => (
+          <Comment
+            key={comment.id}
+            comment={comment}
+            onUpdateComment={handleUpdateComment}
+            onDeleteComment={handleDeleteComment}
+            onAddReply={handleAddReply}
+          />
+        ))
+      ) : (
+        <p>No comments available</p>
+      )}
+      <div className="absolute w-full bottom-0 left-0">
+        <CommentCreateContainer onAddComment={handleAddComment} />
+      </div>
     </>
   )
 }
