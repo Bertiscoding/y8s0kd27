@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useComments } from '../context/CommentsContext'
 import { useUser } from '../context/UserContext'
 import PropTypes from 'prop-types'
 import CommentItem from './CommentItem'
@@ -6,48 +7,61 @@ import CommentReply from './CommentReply'
 import ActionButton from './ActionButton'
 
 
-const Comment = ({ comment, onUpdateComment, onDeleteComment, onAddReply }) => {
-  const {id, text, authorFirstName, authorLastName, authorId, edited, createdOn, replies} = comment
-  
-  const { user } = useUser()
+const Comment = ({
+  id,
+  text,
+  createdOn,
+  edited,
+  replies,
+  isAuthor,
+  authorFirstName,
+  authorLastName,
+}) => {
 
+  const { user } = useUser()
+  const { updateComment, deleteComment, addReply } = useComments()
+  console.log('User in Comment before rendering CommentReply:', user)
   const [repliesOpen, setRepliesOpen] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [replyMode, setReplyMode] = useState(false)
   const [updatedText, setUpdatedText] = useState(text)
-  const [isAuthor, setIsAuthor] = useState(false)
-
-  useEffect(() => {
-    if (user && user.authorId === authorId) {
-      setIsAuthor(true)
-    }
-  }, [user, authorId])
 
   const toggleReplies = () => (setRepliesOpen(!repliesOpen))
 
+  const handleSetEditMode = () => ( setEditMode(true) )
+  const handleSetReplyMode = () => ( setReplyMode(!replyMode) )
+  const handleDelete = () => ( deleteComment(id) )
+
+  const handleTextChange = (newText) => {
+    setUpdatedText(newText)
+  }
+
   const handleSaveEdit = () => {
-    onUpdateComment(id, updatedText)
-    setEditMode(false);
+    if (updatedText.trim()) {
+      updateComment(id, updatedText.trim())
+      setEditMode(false)
+    }
   }
 
   const handleAddReply = (replyText) => {
-    onAddReply(id, replyText)
-    setReplyMode(false);
-  }
+    if (replyText.trim()) {
+      addReply(id, replyText.trim(), user)
+      setReplyMode(false)
+    }
+  }  
 
   return (
-    <div id={id} className='mb-5'>
+    <div className='mb-5'>
       <CommentItem
         id={id}
-        edited={edited}
-        isAuthor={isAuthor}
         editMode={editMode}
-        createdOn={createdOn}
-        itemWidth="w-[348px]"
-        onChangeText={setUpdatedText}
-        authorLastName={authorLastName}
+        text={updatedText}
         authorFirstName={authorFirstName}
-        text={editMode ? updatedText : text}
+        authorLastName={authorLastName}
+        createdOn={createdOn}
+        edited={edited}
+        itemWidth="w-[348px]"
+        onChangeText={handleTextChange}
       />
       <div className='w-full flex justify-end'>
         <div className='w-[348px] flex justify-between mt-2 px-4'>
@@ -56,7 +70,7 @@ const Comment = ({ comment, onUpdateComment, onDeleteComment, onAddReply }) => {
           <ActionButton
             btnClassNames="text-brand-primary w-16"
             disabled={editMode}
-            onClick={() => setReplyMode(!replyMode)}
+            onClick={handleSetReplyMode}
           >
             <span className='mr-1'>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3" transform="scale(1, -1)">
@@ -69,7 +83,7 @@ const Comment = ({ comment, onUpdateComment, onDeleteComment, onAddReply }) => {
           <ActionButton
             disabled={!isAuthor || editMode}
             btnClassNames="text-brand-primary w-16"
-            onClick={() => onDeleteComment(id)}
+            onClick={handleDelete}
           >
             <span className='mr-1'>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
@@ -95,10 +109,10 @@ const Comment = ({ comment, onUpdateComment, onDeleteComment, onAddReply }) => {
             <ActionButton
               btnClassNames="text-brand-primary w-16"
               disabled={!isAuthor}
-              onClick={() => setEditMode(true)}
+              onClick={handleSetEditMode}
             >
             <span className='mr-1'>
-            < svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
               </svg>
             </span>
@@ -107,15 +121,14 @@ const Comment = ({ comment, onUpdateComment, onDeleteComment, onAddReply }) => {
           )}
 
           </div>
-            { replies.length > 0 && (
+            { replies && replies.length > 0 && (
               <ActionButton
                 btnClassNames="text-brand-primary-dark"
                 disabled={false}
                 onClick={toggleReplies}
               >
                 <span className='mr-1'>
-                  {
-                    repliesOpen ? (
+                  { repliesOpen ? (
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12" />
                       </svg>
@@ -134,21 +147,25 @@ const Comment = ({ comment, onUpdateComment, onDeleteComment, onAddReply }) => {
 
         {replyMode && (
           <CommentReply
-            editMode={editMode} 
+            replyMode={replyMode}
             onAddReply={handleAddReply}
+            user={user}
           />
         )}
 
-        {(replies.length > 0 && repliesOpen) && (
+
+        {replies && replies.length > 0 && repliesOpen && (
           replies.map(reply => (
             <CommentReply
               key={reply.id}
               reply={reply}
-              editMode={editMode}
-              onUpdateComment={onUpdateComment}
-              onDeleteComment={onDeleteComment}
-              onAddReply={handleAddReply}
+              onUpdateComment={updateComment}
+              onDeleteComment={deleteComment}
+              onAddReply={(replyText) => handleAddReply(reply.id, replyText, user)}
               isAuthor={isAuthor}
+              user={user}
+              commentId={reply.id}
+              replyMode={replyMode}
             />
           ))
         )}
@@ -157,10 +174,15 @@ const Comment = ({ comment, onUpdateComment, onDeleteComment, onAddReply }) => {
 }
 
 Comment.propTypes = {
-  comment: PropTypes.object,
-  onUpdateComment: PropTypes.func,
-  onDeleteComment: PropTypes.func,
-  onAddReply: PropTypes.func
+  id: PropTypes.string,
+  text: PropTypes.string,
+  createdOn: PropTypes.string,
+  edited: PropTypes.bool,
+  replies: PropTypes.array,
+  isAuthor: PropTypes.bool,
+  authorFirstName: PropTypes.string,
+  authorLastName: PropTypes.string,
+  user: PropTypes.object,
 }
 
 export default Comment

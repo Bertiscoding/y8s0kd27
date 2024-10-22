@@ -1,35 +1,92 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import CommentItem from './CommentItem';
-import CommentForm from './CommentForm';
-import ActionButton from './ActionButton';
+import CommentItem from './CommentItem'
+import CommentForm from './CommentForm'
+import ActionButton from './ActionButton'
 
-const CommentReply = ({ reply, editMode, onUpdateComment, onDeleteComment, onAddReply, isAuthor }) => {
-  const { id, text, authorFirstName, authorLastName, edited, createdOn } = reply
+const CommentReply = ({
+  reply,
+  replyMode,
+  onUpdateComment,
+  onDeleteComment,
+  onAddReply,
+  isAuthor,
+  user,
+}) => {
+  const { id, text, authorFirstName, authorLastName, edited, createdOn } = reply || {}
   
-  const [addReply, setAddReply] = useState('')
+  const [replyText, setReplyText] = useState(reply?.text || '')
+  const [editMode, setEditMode] = useState(false)
+console.log('CommentReply', user)
+
+useEffect(() => {
+  if (reply) {
+    setReplyText(reply.text)
+    setEditMode(false)
+  } else if (replyMode) {
+  
+    setReplyText('')
+    setEditMode(false)
+  } else {
+  
+    setReplyText('')
+    setEditMode(false)
+  }
+}, [reply, replyMode])
+
+  const handleSetEditMode = () => ( setEditMode(true) )
+  const handleAddOrEdit = (e) => ( setReplyText(e.target.value) )
+  const handleDelete = () => ( onDeleteComment(reply?.id) )
+  const handleToggleReply = () => {
+  
+    if (editMode) {
+      setEditMode(false)
+    } else {
+    
+      setEditMode(false)
+    }
+  }
 
   const handleSaveReply = () => {
-    if (addReply.trim()) {
-      onAddReply(addReply)
-      setAddReply('')
+    console.log('handleSaveReply called')
+    if (!replyText || !replyText.trim()) return
+  
+    if (!user) {
+      console.error('User is undefined. Cannot add reply.')
+      return
     }
+  
+    if (reply && editMode) {
+      onUpdateComment(reply.id, replyText.trim())
+      setEditMode(false)
+    } else {
+    
+      console.log('Adding new reply')
+      if (user && user.authorFirstName && user.authorLastName && user.authorId) {
+        console.log('User in handleSaveReply:', user)
+      
+        onAddReply(replyText.trim(), user)
+      } else {
+        console.error('User is undefined or missing properties')
+      }
+    }
+    setReplyText('')
   }
 
   return (
     <div id={id} className='flex justify-between mt-5'>
-      <div className='text-brand-primary-dark ml-base'>
+      <div className='text-brand-primary-dark ml-base' onClick={handleToggleReply}>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
           <path strokeLinecap="round" strokeLinejoin="round" d="m16.49 12 3.75 3.75m0 0-3.75 3.75m3.75-3.75H3.74V4.499" />
         </svg>
       </div>
       <div>
-        { editMode ? (
+        { editMode || replyMode ? (
           <CommentForm
             id={id}
-            text={addReply}
-            placeholder='Write a reply...'
-            onChange={(e) => setAddReply(e.target.value)}
+            text={replyText}
+            placeholder="Write a reply..."
+            onChange={handleAddOrEdit}
           />
         ) : (
           <CommentItem
@@ -39,16 +96,16 @@ const CommentReply = ({ reply, editMode, onUpdateComment, onDeleteComment, onAdd
             edited={edited}
             createdOn={createdOn}
             itemWidth="w-[300px]"
-            editText={editMode}
           />
         )}
+
         <div className='w-full flex justify-end'>
           <div className='w-[300px] flex justify-between mt-2 px-4'>
             <div className='flex'>
               <ActionButton
                 btnClassNames="text-brand-primary w-16"
-                disabled={!isAuthor || editMode}
-                onClick={onDeleteComment}
+                disabled={!isAuthor || (editMode && reply)}
+                onClick={handleDelete}
               >
                 <span className='mr-1'>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
@@ -58,10 +115,10 @@ const CommentReply = ({ reply, editMode, onUpdateComment, onDeleteComment, onAdd
                 <span>Delete</span>
               </ActionButton>
 
-              { editMode ? (
+              { (editMode || replyMode) ? (
                   <ActionButton
                     btnClassNames="text-brand-primary w-22"
-                    disabled={false}
+                    disabled={!replyText.trim()}
                     onClick={handleSaveReply}
                   >
                     <span className='mr-1'>
@@ -69,13 +126,13 @@ const CommentReply = ({ reply, editMode, onUpdateComment, onDeleteComment, onAdd
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                       </svg>
                     </span>
-                    <span>Save changes</span>
+                    <span>{editMode ? 'Save Changes' : 'Add Reply'}</span>
                   </ActionButton>
                 ) : (
                   <ActionButton
                     btnClassNames="text-brand-primary w-16"
                     disabled={!isAuthor}
-                    onClick={onUpdateComment}
+                    onClick={handleSetEditMode}
                   >
                   <span className='mr-1'>
                   < svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
@@ -93,12 +150,21 @@ const CommentReply = ({ reply, editMode, onUpdateComment, onDeleteComment, onAdd
     </div>
   )
 }
+
 CommentReply.propTypes = {
-  reply: PropTypes.object,
-  editMode: PropTypes.bool,
-  onUpdateComment:  PropTypes.func,
+  reply: PropTypes.shape({
+    id: PropTypes.string,
+    text: PropTypes.string,
+    authorFirstName: PropTypes.string,
+    authorLastName: PropTypes.string,
+    edited: PropTypes.bool,
+    createdOn: PropTypes.string,
+  }),
+  replyMode: PropTypes.bool,
+  onUpdateComment: PropTypes.func,
   onDeleteComment: PropTypes.func,
   onAddReply: PropTypes.func,
   isAuthor: PropTypes.bool,
 }
+
 export default CommentReply

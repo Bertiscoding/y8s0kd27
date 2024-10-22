@@ -6,18 +6,12 @@ import CommentCreateContainer from './CommentCreateContainer'
 const CommentContainer = () => {
   const { user } = useUser()
   const { comments, setComments } = useComments()
-  console.log('Loaded comments in CommentContainer:', comments)
-  const handleAddComment = (newCommentText) => {
-    const newComment = {
-      id: Date.now().toString(),
-      text: newCommentText,
-      authorFirstName: user.authorFirstName,
-      authorLastName: user.authorLastName,
-      authorId: user.authorId,
-      createdOn: new Date(),
-      replies: [],
-    }
-    setComments((prevComments) => [...prevComments, newComment])
+  console.log('CommentContainer', user);
+  const handleAddComment = (newComment) => {
+    setComments((prevComments) => {
+      const addedComments = [...prevComments, newComment]
+      return addedComments.sort((a, b) => new Date(a.createdOn) - new Date(b.createdOn))
+    })
   }
 
   const handleUpdateComment = (id, updatedText) => {
@@ -28,11 +22,11 @@ const CommentContainer = () => {
   }
 
   const handleDeleteComment = (id) => {
-    const updatedComments = comments.filter((comment) => comment.id !== id);
-    setComments(updatedComments)
+    const deletedComments = comments.filter((comment) => comment.id !== id)
+    setComments(deletedComments)
   }
 
-  const handleAddReply = (commentId, replyText) => {
+  const handleAddReply = (commentId, replyText, user) => {
     const newReply = {
       id: Date.now().toString(),
       text: replyText,
@@ -42,11 +36,13 @@ const CommentContainer = () => {
       createdOn: new Date(),
       replies: [],
     }
-    const updatedComments = comments.map((comment) =>
+  
+    const replyComments = comments.map((comment) =>
       comment.id === commentId ? { ...comment, replies: [...comment.replies, newReply] } : comment
     )
-    setComments(updatedComments)
-  }
+    
+    setComments(replyComments)
+  }  
 
   return (
     <>
@@ -54,10 +50,11 @@ const CommentContainer = () => {
         comments.map((comment) => (
           <Comment
             key={comment.id}
-            comment={comment}
+            {...comment}
+            isAuthor={user?.authorId === comment.authorId}
             onUpdateComment={handleUpdateComment}
             onDeleteComment={handleDeleteComment}
-            onAddReply={handleAddReply}
+            onAddReply={(replyText) => handleAddReply(comment.id, replyText, user)}
           />
         ))
       ) : (

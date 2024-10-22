@@ -7,7 +7,7 @@ import ActionButton from './ActionButton'
 const CommentCreateContainer = ({ onAddComment }) => {
   const { user } = useUser()
 
-  const [formOpen, setFormOpen] = useState(false)
+  const [formOpen, setFormOpen] = useState(true)
   const [newCommentText, setNewCommentText] = useState('')
 
   const toggleForm = () => (setFormOpen(!formOpen))
@@ -20,23 +20,22 @@ const CommentCreateContainer = ({ onAddComment }) => {
     e.preventDefault()
     const trimmedCommentText = newCommentText.trim()
     if (!trimmedCommentText) return
-
+  
     const newComment = {
       id: Date.now().toString(),
       text: trimmedCommentText,
-      authorFirstName: user?.authorFirstName,
-      authorLastName: user?.authorLastName,
-      authorId: user?.authorId,
+      authorFirstName: user?.authorFirstName || 'Dan',
+      authorLastName: user?.authorLastName || 'Druff',
+      authorId: user?.authorId || 0,
       edited: false,
       createdOn: new Date(),
       replies: [],
     }
-
+  
     onAddComment(newComment)
     setNewCommentText('')
     setFormOpen(false)
   }
-  
 
   return (
     <>

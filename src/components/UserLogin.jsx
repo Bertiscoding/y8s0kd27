@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useUser } from '../context/UserContext';
 
 const UserLogin = ({ setCommentView }) => {
@@ -12,16 +12,6 @@ const UserLogin = ({ setCommentView }) => {
 
   const isFormValid = !!(userName.authorFirstName.trim() && userName.authorLastName.trim())
 
-  useEffect(() => {
-    const savedUserName = localStorage.getItem('userName')
-    if (savedUserName) {
-      const parsedUserName = JSON.parse(savedUserName)
-      setUserName(parsedUserName)
-      setUser(parsedUserName)
-      setCommentView(true)
-    }
-  }, [setCommentView, setUser]);
-
   const handleChange = (e) => {
     const { name, value } = e.target
     setUserName((prev) => ({
@@ -32,11 +22,10 @@ const UserLogin = ({ setCommentView }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!userName) return
-  
-    localStorage.setItem('userName', JSON.stringify(userName))
+    if (!isFormValid) return
+
     setUser(userName)
-    setCommentView(isFormValid)
+    setCommentView(true)
   }
 
   return (
@@ -76,4 +65,5 @@ const UserLogin = ({ setCommentView }) => {
     </div>
   )
 }
+
 export default UserLogin
