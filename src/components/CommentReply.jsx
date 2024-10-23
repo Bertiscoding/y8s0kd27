@@ -9,15 +9,16 @@ import ActionButton from './ActionButton'
 const CommentReply = ({
   reply,
   replyMode,
+  onAddReply,
   onUpdateComment,
   onDeleteComment,
-  onAddReply,
 }) => {
   const { user } = useUser()
   const { isAuthor } = useComments()
   const { id, authorFirstName, authorLastName, authorId, edited, createdOn } = reply || {}
   const [replyText, setReplyText] = useState(reply?.text || '')
   const [editMode, setEditMode] = useState(false)
+  const [isEdited, setIsEdited] = useState(edited)
 
   useEffect(() => {
     if (reply) {
@@ -44,16 +45,20 @@ const CommentReply = ({
     }
   }
 
+  const handleTextChange = (newText) => setReplyText(newText)
+
   const handleSaveReply = () => {
     if (!user || !replyText || !replyText.trim()) return
   
     if (reply && editMode) {
+      setIsEdited(true)
+      handleTextChange(replyText.trim())
       onUpdateComment(reply.id, replyText.trim())
       setEditMode(false)
     } else {
       onAddReply(replyText.trim())
+      setReplyText('')
     }
-    setReplyText('')
   }
 
   return (
@@ -80,7 +85,7 @@ const CommentReply = ({
             authorLastName={authorLastName}
             authorId={authorId}
             createdOn={createdOn}
-            edited={edited}
+            edited={isEdited}
             onChangeText={setReplyText}
             itemWidth="w-[300px]"
           />

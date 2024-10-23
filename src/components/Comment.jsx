@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useUser } from '../context/UserContext'
 import { useComments } from '../context/CommentsContext'
 import PropTypes from 'prop-types'
 import CommentItem from './CommentItem'
@@ -16,14 +15,14 @@ const Comment = ({
   authorLastName,
   authorId,
 }) => {
-  const { user } = useUser()
   const { deleteComment, addReply, updateComment, isAuthor } = useComments()
   const [repliesOpen, setRepliesOpen] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [replyMode, setReplyMode] = useState(false)
   const [updatedText, setUpdatedText] = useState(text)
-
+  
   const disabledBtn = isAuthor(authorId)
+
   const toggleReplies = () => setRepliesOpen(!repliesOpen)
   const handleSetEditMode = () => setEditMode(true)
   
@@ -44,6 +43,7 @@ const Comment = ({
       addReply(id, replyText.trim())
       setReplyMode(false)
     }
+    setReplyMode(false)
   }
 
   return (
@@ -146,7 +146,6 @@ const Comment = ({
 
         {replyMode && (
           <CommentReply
-            user={user}
             replyMode={replyMode}
             onAddReply={handleAddReply}
           />
@@ -160,6 +159,7 @@ const Comment = ({
               replyMode={replyMode}
               onAddReply={handleAddReply}
               onDeleteComment={handleDelete}
+              onUpdateComment={handleSaveEdit}
             />
           ))
         )}
