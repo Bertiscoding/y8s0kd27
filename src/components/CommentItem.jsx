@@ -67,12 +67,12 @@ CommentItem.propTypes = {
   text: PropTypes.string,
   authorFirstName: PropTypes.string,
   authorLastName: PropTypes.string,
+  isAuthor: PropTypes.bool,
   edited: PropTypes.bool,
   createdOn: PropTypes.string,
   itemWidth: PropTypes.string,
   editMode: PropTypes.bool,
   onChangeText: PropTypes.func,
-  isAuthor: PropTypes.bool,
 }
 
 export default CommentItem

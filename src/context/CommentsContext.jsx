@@ -20,9 +20,8 @@ export const CommentsProvider = ({ children }) => {
       return seedComments
     }
   }
-  
 
-  const [comments, setComments] = useState(loadInitialComments)
+  const [comments, setComments] = useState(loadInitialComments) 
 
   useEffect(() => {
     if (comments.length > 0) {
@@ -50,13 +49,14 @@ export const CommentsProvider = ({ children }) => {
       setComments((prev) => prev.filter((comment) => comment.id !== id))
     }
   }
+  
 
   const addReply = (commentId, replyText, user) => {
     if (!user) {
       console.error("User is not defined");
       return;
     }
-  
+
     const newReply = {
       id: Date.now().toString(),
       text: replyText,
@@ -66,7 +66,7 @@ export const CommentsProvider = ({ children }) => {
       createdOn: new Date(),
       replies: [],
     };
-  
+
     setComments((prev) =>
       prev.map((comment) =>
         comment.id === commentId
@@ -74,7 +74,7 @@ export const CommentsProvider = ({ children }) => {
           : comment
       )
     );
-  };  
+  };
 
   const providerValue = useMemo(() => ({
     comments,
@@ -83,6 +83,7 @@ export const CommentsProvider = ({ children }) => {
     updateComment,
     deleteComment,
     addReply,
+  // eslint-disable-next-line
   }), [comments])
 
   return (

@@ -6,7 +6,7 @@ import CommentCreateContainer from './CommentCreateContainer'
 const CommentContainer = () => {
   const { user } = useUser()
   const { comments, setComments } = useComments()
-  console.log('CommentContainer', user);
+
   const handleAddComment = (newComment) => {
     setComments((prevComments) => {
       const addedComments = [...prevComments, newComment]
@@ -40,7 +40,6 @@ const CommentContainer = () => {
     const replyComments = comments.map((comment) =>
       comment.id === commentId ? { ...comment, replies: [...comment.replies, newReply] } : comment
     )
-    
     setComments(replyComments)
   }  
 
@@ -51,6 +50,7 @@ const CommentContainer = () => {
           <Comment
             key={comment.id}
             {...comment}
+            user={user}
             isAuthor={user?.authorId === comment.authorId}
             onUpdateComment={handleUpdateComment}
             onDeleteComment={handleDeleteComment}

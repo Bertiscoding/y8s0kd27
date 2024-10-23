@@ -13,62 +13,43 @@ const CommentReply = ({
   isAuthor,
   user,
 }) => {
-  const { id, text, authorFirstName, authorLastName, edited, createdOn } = reply || {}
+  const { id, authorFirstName, authorLastName, authorId, edited, createdOn } = reply || {}
   
   const [replyText, setReplyText] = useState(reply?.text || '')
   const [editMode, setEditMode] = useState(false)
-console.log('CommentReply', user)
 
-useEffect(() => {
-  if (reply) {
-    setReplyText(reply.text)
-    setEditMode(false)
-  } else if (replyMode) {
-  
-    setReplyText('')
-    setEditMode(false)
-  } else {
-  
-    setReplyText('')
-    setEditMode(false)
-  }
-}, [reply, replyMode])
+  useEffect(() => {
+    if (reply) {
+      setReplyText(reply.text)
+      setEditMode(false)
+    } else if (replyMode) {
+      setReplyText('')
+      setEditMode(false)
+    } else {
+      setReplyText('')
+      setEditMode(false)
+    }
+  }, [reply, replyMode])
 
-  const handleSetEditMode = () => ( setEditMode(true) )
-  const handleAddOrEdit = (e) => ( setReplyText(e.target.value) )
-  const handleDelete = () => ( onDeleteComment(reply?.id) )
+  const handleSetEditMode = () => setEditMode(true)
+  const handleAddOrEdit = (e) => setReplyText(e.target.value)
+  const handleDelete = () => onDeleteComment(reply?.id)
   const handleToggleReply = () => {
-  
     if (editMode) {
       setEditMode(false)
     } else {
-    
       setEditMode(false)
     }
   }
 
   const handleSaveReply = () => {
-    console.log('handleSaveReply called')
-    if (!replyText || !replyText.trim()) return
-  
-    if (!user) {
-      console.error('User is undefined. Cannot add reply.')
-      return
-    }
+    if (!user || !replyText || !replyText.trim()) return
   
     if (reply && editMode) {
       onUpdateComment(reply.id, replyText.trim())
       setEditMode(false)
     } else {
-    
-      console.log('Adding new reply')
-      if (user && user.authorFirstName && user.authorLastName && user.authorId) {
-        console.log('User in handleSaveReply:', user)
-      
-        onAddReply(replyText.trim(), user)
-      } else {
-        console.error('User is undefined or missing properties')
-      }
+      onAddReply(replyText.trim(), user)
     }
     setReplyText('')
   }
@@ -90,11 +71,15 @@ useEffect(() => {
           />
         ) : (
           <CommentItem
-            text={text}
+            id={id}
+            editMode={editMode}
+            text={replyText}
             authorFirstName={authorFirstName}
             authorLastName={authorLastName}
-            edited={edited}
+            authorId={authorId}
             createdOn={createdOn}
+            edited={edited}
+            onChangeText={setReplyText}
             itemWidth="w-[300px]"
           />
         )}
@@ -104,7 +89,7 @@ useEffect(() => {
             <div className='flex'>
               <ActionButton
                 btnClassNames="text-brand-primary w-16"
-                disabled={!isAuthor || (editMode && reply)}
+                disabled={!reply || (editMode && reply)}
                 onClick={handleDelete}
               >
                 <span className='mr-1'>
@@ -131,11 +116,11 @@ useEffect(() => {
                 ) : (
                   <ActionButton
                     btnClassNames="text-brand-primary w-16"
-                    disabled={!isAuthor}
+                    disabled={!reply}
                     onClick={handleSetEditMode}
                   >
                   <span className='mr-1'>
-                  < svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
                       <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                     </svg>
                   </span>
@@ -146,7 +131,6 @@ useEffect(() => {
           </div>
         </div>
       </div>
-
     </div>
   )
 }
@@ -155,6 +139,7 @@ CommentReply.propTypes = {
   reply: PropTypes.shape({
     id: PropTypes.string,
     text: PropTypes.string,
+    authorId: PropTypes.number,
     authorFirstName: PropTypes.string,
     authorLastName: PropTypes.string,
     edited: PropTypes.bool,
@@ -164,7 +149,6 @@ CommentReply.propTypes = {
   onUpdateComment: PropTypes.func,
   onDeleteComment: PropTypes.func,
   onAddReply: PropTypes.func,
-  isAuthor: PropTypes.bool,
 }
 
 export default CommentReply
