@@ -1,35 +1,34 @@
-import { useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
+import { useComments } from '../context/CommentsContext'
 import Comment from './Comment'
-import { otherComments } from '../db'
+import CommentCreateContainer from './CommentCreateContainer'
 
 const CommentContainer = () => {
-  const [comments, setComments] = useState(otherComments)
+  const { comments, setComments } = useComments()
 
-  useEffect(() => {
-    // if comments.length check
-    const sortedComments = comments.sort((a, b) => { // not working!
-      return new Date(b.createdOn) - new Date(a.createdOn)
+  const handleAddComment = (newComment) => {
+    setComments((prevComments) => {
+      const addedComments = [...prevComments, newComment]
+      return addedComments.sort((a, b) => new Date(a.createdOn) - new Date(b.createdOn))
     })
-    setComments(sortedComments)
-  // eslint-disable-next-line
-  }, [])
-
-  // also get comments from localStorage
+  } 
 
   return (
-    <div className='bg-white rounded-md p-base w-[425px] h-[90vh] overflow-y-scroll mx-auto'>
-      {
-        comments.map(comment => (
-          <Comment key={comment.id} comment={comment} />
+    <>
+      {comments?.length > 0 ? (
+        comments.map((comment) => (
+          <Comment
+            key={comment.id}
+            {...comment}
+          />
         ))
-      }
-    </div>
+      ) : (
+        <p>No comments available</p>
+      )}
+      <div className="absolute w-full bottom-0 left-0">
+        <CommentCreateContainer onAddComment={handleAddComment} />
+      </div>
+    </>
   )
-}
-
-CommentContainer.propTypes = {
-  comments: PropTypes.array,
 }
 
 export default CommentContainer

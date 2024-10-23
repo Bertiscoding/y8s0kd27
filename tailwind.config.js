@@ -10,6 +10,7 @@ module.exports = {
         "brand-primary-light": "#DFDEF7",
         "brand-primary-light-II": "#7D7CDF",
         "brand-primary-dark": "#545479",
+        "brand-primary-dark-II": "#F3F3F7 ",
         "brand-off-white": "#F6F8FA",
         "brand-grey-light": "#D5DBE1",
         "brand-grey": "#6A7383",
