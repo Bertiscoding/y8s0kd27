@@ -12,18 +12,18 @@ const Comment = ({
   createdOn,
   edited,
   replies,
-  isAuthor,
   authorFirstName,
   authorLastName,
   authorId,
 }) => {
   const { user } = useUser()
-  const { deleteComment, addReply, updateComment } = useComments()
+  const { deleteComment, addReply, updateComment, isAuthor } = useComments()
   const [repliesOpen, setRepliesOpen] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [replyMode, setReplyMode] = useState(false)
   const [updatedText, setUpdatedText] = useState(text)
 
+  const disabledBtn = isAuthor(authorId)
   const toggleReplies = () => setRepliesOpen(!repliesOpen)
   const handleSetEditMode = () => setEditMode(true)
   
@@ -39,9 +39,9 @@ const Comment = ({
 
   const handleTextChange = (newText) => setUpdatedText(newText)
 
-  const handleAddReply = (replyText, user) => {
+  const handleAddReply = (replyText) => {
     if (replyText.trim()) {
-      addReply(id, replyText.trim(), user)
+      addReply(id, replyText.trim())
       setReplyMode(false)
     }
   }
@@ -79,7 +79,7 @@ const Comment = ({
 
           <ActionButton
             onClick={handleDelete}
-            disabled={!isAuthor || editMode}
+            disabled={!disabledBtn || editMode}
             btnClassNames="text-brand-primary w-16"
           >
             <span className='mr-1'>
@@ -107,7 +107,7 @@ const Comment = ({
             ) : (
               <ActionButton
                 btnClassNames="text-brand-primary w-16"
-                disabled={!isAuthor}
+                disabled={!disabledBtn}
                 onClick={handleSetEditMode}
               >
                 <span className='mr-1'>
@@ -157,12 +157,9 @@ const Comment = ({
             <CommentReply
               key={reply.id}
               reply={reply}
+              replyMode={replyMode}
               onAddReply={handleAddReply}
               onDeleteComment={handleDelete}
-              isAuthor={isAuthor}
-              user={user}
-              commentId={reply.id}
-              replyMode={replyMode}
             />
           ))
         )}

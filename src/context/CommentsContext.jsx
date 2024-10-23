@@ -21,7 +21,7 @@ export const CommentsProvider = ({ children }) => {
     }
   }
 
-  const [comments, setComments] = useState(loadInitialComments) 
+  const [comments, setComments] = useState(loadInitialComments)
 
   useEffect(() => {
     if (comments.length > 0) {
@@ -49,23 +49,31 @@ export const CommentsProvider = ({ children }) => {
       setComments((prev) => prev.filter((comment) => comment.id !== id))
     }
   }
-  
 
-  const addReply = (commentId, replyText, user) => {
-    if (!user) {
-      console.error("User is not defined");
-      return;
+  const currentUser = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem('user'))
+    } catch (error) {
+      console.error('Error loading user from localStorage', error)
+      return null
+    }
+  }, [])
+
+  const addReply = (commentId, replyText) => {
+    if (!currentUser) {
+      console.error("User is not defined")
+      return
     }
 
     const newReply = {
       id: Date.now().toString(),
       text: replyText,
-      authorFirstName: user.authorFirstName,
-      authorLastName: user.authorLastName,
-      authorId: user.authorId,
+      authorFirstName: currentUser.authorFirstName,
+      authorLastName: currentUser.authorLastName,
+      authorId: currentUser.authorId,
       createdOn: new Date(),
       replies: [],
-    };
+    }
 
     setComments((prev) =>
       prev.map((comment) =>
@@ -73,8 +81,12 @@ export const CommentsProvider = ({ children }) => {
           ? { ...comment, replies: [...comment.replies, newReply] }
           : comment
       )
-    );
-  };
+    )
+  }
+
+  const isAuthor = (authorId) => {
+    return currentUser && currentUser.authorId === authorId
+  }
 
   const providerValue = useMemo(() => ({
     comments,
@@ -83,8 +95,9 @@ export const CommentsProvider = ({ children }) => {
     updateComment,
     deleteComment,
     addReply,
+    isAuthor
   // eslint-disable-next-line
-  }), [comments])
+  }), [comments, currentUser])
 
   return (
     <CommentsContext.Provider value={providerValue}>

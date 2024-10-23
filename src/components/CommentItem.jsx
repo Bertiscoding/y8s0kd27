@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useComments } from '../context/CommentsContext'
 import { format } from 'date-fns'
 import CommentForm from './CommentForm'
 
@@ -6,6 +7,7 @@ const CommentItem = (
   {
     id,
     text,
+    authorId = 0,
     authorFirstName = 'Dan',
     authorLastName = 'Druff',
     edited,
@@ -13,13 +15,12 @@ const CommentItem = (
     itemWidth,
     editMode,
     onChangeText,
-    isAuthor,
   }) => {
-  
+  const { isAuthor } = useComments()
   const validDate = createdOn ? new Date(createdOn) : new Date()
   const formattedDate = isNaN(validDate) ? 'Invalid date' : format(validDate, 'dd.MM.yyyy hh:mm a')
 
-  const isAuthorAvatar = isAuthor
+  const isAuthorAvatar = isAuthor(authorId)
     ? 'bg-brand-primary-dark border-brand-primary-dark text-brand-off-white'
     : 'bg-brand-primary-light border-brand-primary-light-II text-brand-primary-dark'
 

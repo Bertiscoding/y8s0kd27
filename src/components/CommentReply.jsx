@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { useUser } from '../context/UserContext'
+import { useComments } from '../context/CommentsContext'
 import PropTypes from 'prop-types'
 import CommentItem from './CommentItem'
 import CommentForm from './CommentForm'
@@ -10,11 +12,10 @@ const CommentReply = ({
   onUpdateComment,
   onDeleteComment,
   onAddReply,
-  isAuthor,
-  user,
 }) => {
+  const { user } = useUser()
+  const { isAuthor } = useComments()
   const { id, authorFirstName, authorLastName, authorId, edited, createdOn } = reply || {}
-  
   const [replyText, setReplyText] = useState(reply?.text || '')
   const [editMode, setEditMode] = useState(false)
 
@@ -31,6 +32,7 @@ const CommentReply = ({
     }
   }, [reply, replyMode])
 
+  const disabledBtn = isAuthor(authorId)
   const handleSetEditMode = () => setEditMode(true)
   const handleAddOrEdit = (e) => setReplyText(e.target.value)
   const handleDelete = () => onDeleteComment(reply?.id)
@@ -49,7 +51,7 @@ const CommentReply = ({
       onUpdateComment(reply.id, replyText.trim())
       setEditMode(false)
     } else {
-      onAddReply(replyText.trim(), user)
+      onAddReply(replyText.trim())
     }
     setReplyText('')
   }
@@ -89,7 +91,7 @@ const CommentReply = ({
             <div className='flex'>
               <ActionButton
                 btnClassNames="text-brand-primary w-16"
-                disabled={!reply || (editMode && reply)}
+                disabled={!disabledBtn || (editMode && reply)}
                 onClick={handleDelete}
               >
                 <span className='mr-1'>
@@ -116,7 +118,7 @@ const CommentReply = ({
                 ) : (
                   <ActionButton
                     btnClassNames="text-brand-primary w-16"
-                    disabled={!reply}
+                    disabled={!disabledBtn}
                     onClick={handleSetEditMode}
                   >
                   <span className='mr-1'>
