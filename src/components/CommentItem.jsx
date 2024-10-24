@@ -3,19 +3,18 @@ import { useComments } from '../context/CommentsContext'
 import { format } from 'date-fns'
 import CommentForm from './CommentForm'
 
-const CommentItem = (
-  {
-    id,
-    text,
-    authorId = 0,
-    authorFirstName = 'Dan',
-    authorLastName = 'Druff',
-    edited,
-    createdOn,
-    itemWidth,
-    editMode,
-    onChangeText,
-  }) => {
+const CommentItem = ({
+  id,
+  text,
+  authorId = 0,
+  authorFirstName = 'Dan',
+  authorLastName = 'Druff',
+  edited,
+  createdOn,
+  itemWidth,
+  editMode,
+  onChangeText,
+}) => {
   const { isAuthor } = useComments()
   const validDate = createdOn ? new Date(createdOn) : new Date()
   const formattedDate = isNaN(validDate) ? 'Invalid date' : format(validDate, 'dd.MM.yyyy hh:mm a')
@@ -30,7 +29,7 @@ const CommentItem = (
     <div className='flex'>
       <div className={`${isAuthorAvatar} rounded-full border w-9 h-9 flex justify-center items-center mr-2`}>
         <span className='font-bold text-sm'>
-        {authorFirstName[0].toUpperCase()}{authorLastName[0].toUpperCase()}
+          {authorFirstName[0].toUpperCase()}{authorLastName[0].toUpperCase()}
         </span>
       </div>
 
@@ -41,24 +40,22 @@ const CommentItem = (
             <p>{formattedDate}</p>
           </div>
 
-          { editMode ? (
-            <>
-              <CommentForm
-                id={id}
-                text={text}
-                onChange={handleChange}
-              />
-            </>
+          {editMode ? (
+            <CommentForm
+              id={id}
+              text={text}
+              onChange={handleChange}
+              dataTestId="commentEditFormInput"
+            />
           ) : (
             <p className='text-sm'>{text}</p>
           )}
 
           <div className='flex justify-end h-base'>
-            {edited && ( <p className='italic text-xxs-10 font-light text-brand-grey'>edited</p> )}
+            {edited && (<p className='italic text-xxs-10 font-light text-brand-grey'>edited</p>)}
           </div>
         </div>
       </div>
-
     </div>
   )
 }
@@ -77,4 +74,3 @@ CommentItem.propTypes = {
 }
 
 export default CommentItem
-

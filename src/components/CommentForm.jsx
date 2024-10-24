@@ -1,4 +1,6 @@
-const CommentForm = ({id, text, onChange, placeholder}) => {
+import PropTypes from 'prop-types'
+
+const CommentForm = ({ id, text, onChange, placeholder, dataTestId }) => {
   
   return (
     <div className='w-full'>
@@ -10,9 +12,18 @@ const CommentForm = ({id, text, onChange, placeholder}) => {
         name={`comment-form-${id}`}
         placeholder={placeholder}
         className='text-sm border border-brand-grey rounded-md w-full p-2'
+        data-testid={dataTestId}
       ></textarea>
     </div>
   )
+}
+
+Comment.propTypes = {
+  id: PropTypes.string,
+  text: PropTypes.string,
+  onChange: PropTypes.func,
+  placeholder: PropTypes.string,
+  dataTestId: PropTypes.string,
 }
 
 export default CommentForm

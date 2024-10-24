@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useUser } from '../context/UserContext'
 
-const UserLogin = ({ setCommentView }) => {
+const UserLogin = () => {
   const { setUser } = useUser()
 
   const [userName, setUserName] = useState({
@@ -23,16 +23,16 @@ const UserLogin = ({ setCommentView }) => {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!isFormValid) return
-
     setUser(userName)
-    setCommentView(true)
+    setTimeout(() => {
+      localStorage.setItem('user', JSON.stringify(userName))
+     window.location.reload()
+    }, 500)
   }
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-center my-9">
-        Enter your user name
-      </h1>
+      <h1 className="text-xl font-semibold text-center my-9">Enter your user name</h1>
       <form onSubmit={handleSubmit} className="flex flex-col">
         <input
           required

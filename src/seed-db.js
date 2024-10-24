@@ -35,7 +35,9 @@ module.exports = {
           authorFirstName: "Erika",
           authorLastName: "Mustermann",
           authorId: 2,
+          edited: false,
           createdOn: '2024-10-14T12:17:57.218Z',
+          replies: []
         },
       ]
     },

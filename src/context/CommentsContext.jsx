@@ -72,6 +72,7 @@ export const CommentsProvider = ({ children }) => {
       authorLastName: currentUser.authorLastName,
       authorId: currentUser.authorId,
       createdOn: new Date(),
+      edited: false,
       replies: [],
     }
 

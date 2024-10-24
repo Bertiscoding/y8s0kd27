@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useUser } from '../context/UserContext'
-import PropTypes from 'prop-types'
 import CommentForm from './CommentForm'
 import ActionButton from './ActionButton'
 
@@ -52,7 +51,9 @@ const CommentCreateContainer = ({ onAddComment }) => {
               <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
             </svg>
           </span>
-          <span>{formOpen ? 'Close' : 'Open'} form</span>
+          <span data-testid="toggleCreateFormButton">
+            {formOpen ? 'Close' : 'Open'} form
+          </span>
         </ActionButton>
       </div>
       { formOpen && (
@@ -63,22 +64,21 @@ const CommentCreateContainer = ({ onAddComment }) => {
                 text={newCommentText}
                 placeholder='What is on your mind...'
                 onChange={handleFormChange}
+                dataTestId="commentCreateFormInput"
               />
             </div>
             <button
               disabled={!newCommentText}
               onClick={handleSaveNewComment}
-              className='bg-brand-primary disabled:bg-brand-grey-light rounded-md text-white font-semibold fit-content px-5 py-3'>
+              className='bg-brand-primary disabled:bg-brand-grey-light rounded-md text-white font-semibold fit-content px-5 py-3'
+              data-testid='saveCommentButton'
+              >
               Post comment
             </button>
           </div>
         ) }
     </>
   )
-}
-
-CommentCreateContainer.propTypes = {
-  onAddComment: PropTypes.func,
 }
 
 export default CommentCreateContainer
