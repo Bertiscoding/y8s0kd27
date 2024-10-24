@@ -39,7 +39,7 @@ export const CommentsProvider = ({ children }) => {
 
   const updateComment = (id, updatedText) => {
     setComments((prev) =>
-      prev.map((comment) => (comment.id === id ? { ...comment, text: updatedText, edited: true } : comment))
+      prev.map((comment) => (comment.id === id ? { ...comment, text: updatedText } : comment))
     )
   }
 
@@ -96,7 +96,7 @@ export const CommentsProvider = ({ children }) => {
     updateComment,
     deleteComment,
     addReply,
-    isAuthor,
+    isAuthor
   // eslint-disable-next-line
   }), [comments, currentUser])
 

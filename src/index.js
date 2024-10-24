@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { UserProvider } from './context/UserContext';
 import { CommentsProvider } from './context/CommentsContext';
+console.warn = () => {};
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

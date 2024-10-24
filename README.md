@@ -8,6 +8,9 @@
 - Comments can be nested: The user can comment on another comment
 - Comments are persisted: Restarting/ refreshing the app does not clear comments
 
+![Getting Started](view.png)
+
+------
 
 ### `npm start`
 Runs the app in the development mode.\
@@ -32,3 +35,6 @@ Given the time constraints, I made some deliberate trade-offs and didn't handle 
 - I did not to implement a log-in functionality for authorization. So two User objects are hardcoded from the seeding db and with the current user entering a name, the view assumes the current user is logged in and therefor authorized to create, updated and delete their respective comments
 - No unlimeted nesting: The user is able to reply to comments, but can’t reply to replies of a comments
 - When editing the "Save"-button serves as a save- and abort-button. I did not add an additional button
+- I did not spend time on improving the user experience, by having smooth transitions, auto-scroll to the comment last added/edit etc.
+- Only added 3 tests for the main functionality. Of course you can (and should) always test more granular, for the sake of time, three should be sufficient
+- I ran into race condition issues when loading the user first from the localStorage. That is why the method to get it is so extensive, to ensure, the user is there from the start, while not delaying the app

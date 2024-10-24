@@ -3,29 +3,26 @@ import Comment from './Comment'
 import CommentCreateContainer from './CommentCreateContainer'
 
 const CommentContainer = () => {
-  const { comments, setComments } = useComments()
+  const { comments, addComment } = useComments()
 
-  const handleAddComment = (newComment) => {
-    setComments((prevComments) => {
-      const addedComments = [...prevComments, newComment]
-      return addedComments.sort((a, b) => new Date(a.createdOn) - new Date(b.createdOn))
-    })
-  } 
+  const renderComments = (comments) => {
+    if (!comments || comments.length === 0) {
+      return <p>No comments available</p>
+    }
+  
+    return comments.map((comment) => (
+      <Comment
+        key={comment.id}
+        {...comment}
+      />
+    ))
+  }
 
   return (
     <>
-      {comments?.length > 0 ? (
-        comments.map((comment) => (
-          <Comment
-            key={comment.id}
-            {...comment}
-          />
-        ))
-      ) : (
-        <p>No comments available</p>
-      )}
+      {renderComments(comments)}
       <div className="absolute w-full bottom-0 left-0">
-        <CommentCreateContainer onAddComment={handleAddComment} />
+        <CommentCreateContainer onAddComment={addComment} />
       </div>
     </>
   )
